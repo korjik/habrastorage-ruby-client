@@ -6,6 +6,7 @@
 Установка:
 
 $ gem install json
+
 $ git clone https://github.com/korjik/habrastorage-ruby-client.git
 
 Измените в скрипте abrastorage-ruby-client/habruploader переменные habrauser and habrakey с данными, которые можно получить тут http://habrahabr.ru/whoami/
