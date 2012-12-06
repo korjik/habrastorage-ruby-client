@@ -17,6 +17,9 @@ $ sudo cp habrastorage-ruby-client/habruploader /usr/bin
 
 habruploader
  
+Полное описание в статье http://habrahabr.ru/company/epam_systems/blog/161631/
+
+
 
 Форкайте, изменяйте на здоровье!
 Андрей Кожокару
