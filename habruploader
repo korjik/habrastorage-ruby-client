@@ -1,0 +1,69 @@
+#!/usr/bin/env ruby
+
+# setting
+browser_cmd = 'google-chrome'
+clipboard_cmd = 'xclip'
+habrauser = 'korjik'
+habrakey= '14exaaample'
+
+
+require 'net/http'
+require 'json'
+
+
+# capture png file
+tmpfile = "/tmp/image_upload#{$$}.png"
+imagefile = ARGV[0]
+
+if imagefile && File.exist?(imagefile) then
+  system "convert '#{imagefile}' '#{tmpfile}'"
+else
+  system "import '#{tmpfile}'"
+end
+
+if !File.exist?(tmpfile) then
+  exit
+end
+
+imagedata = File.read(tmpfile)
+File.delete(tmpfile)
+
+# upload
+boundary = '----BOUNDARYBOUNDARY----'
+
+HOST = 'habrastorage.org'
+CGI = "/uploadController/?username=#{habrauser}&userkey=#{habrakey}"
+UA   = 'Ruby Habraclient'
+
+data = <<EOF
+--#{boundary}\r
+content-disposition: form-data; name="Filedata"; filename="picture.png"\r
+\r
+#{imagedata}\r
+--#{boundary}--\r
+EOF
+
+
+header ={
+  'Content-Length' => data.length.to_s,
+  'Content-type' => "multipart/form-data; boundary=#{boundary}",
+  'User-Agent' => UA
+}
+
+env = ENV['http_proxy']
+if env then
+  uri = URI(env)
+  proxy_host, proxy_port = uri.host, uri.port
+else
+  proxy_host, proxy_port = nil, nil
+end
+Net::HTTP::Proxy(proxy_host, proxy_port).start(HOST,80) {|http|
+  res = http.post(CGI,data,header)
+  url = JSON.parse(res.response.body.to_s)["url"]
+  puts url
+  if system "which #{clipboard_cmd} >/dev/null 2>&1" then
+    system "echo -n '#{url}' | #{clipboard_cmd}"
+  end
+  system "#{browser_cmd} '#{url}'"
+
+}
